@@ -46,6 +46,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 
 export const Tasks = (): JSX.Element => {
   const { theme } = useTheme();
@@ -85,6 +93,10 @@ export const Tasks = (): JSX.Element => {
   // For smooth account panel close animation
   const [isAccountPanelVisible, setIsAccountPanelVisible] = useState(false);
   const [isAccountPanelClosing, setIsAccountPanelClosing] = useState(false);
+  
+  // Delete confirmation dialog state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
   // Handle mounting/unmounting for animation
   useEffect(() => {
@@ -156,9 +168,21 @@ export const Tasks = (): JSX.Element => {
   const handleDeleteTask = async (taskId: string) => {
     try {
       await deleteTask(taskId);
+      setDeleteConfirmOpen(false);
+      setTaskToDelete(null);
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
+  };
+
+  const openDeleteConfirmation = (task: Task) => {
+    setTaskToDelete(task);
+    setDeleteConfirmOpen(true);
+  };
+
+  const closeDeleteConfirmation = () => {
+    setDeleteConfirmOpen(false);
+    setTaskToDelete(null);
   };
 
   const handleDuplicateTask = async (taskId: string) => {
@@ -710,7 +734,7 @@ export const Tasks = (): JSX.Element => {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 text-sm flex items-center gap-3"
-                            onClick={() => handleDeleteTask(task.id)}
+                            onClick={() => openDeleteConfirmation(task)}
                           >
                             <Trash2 className="w-4 h-4 text-red-500" />
                             Delete
@@ -800,7 +824,7 @@ export const Tasks = (): JSX.Element => {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 text-sm flex items-center gap-3"
-                            onClick={() => handleDeleteTask(task.id)}
+                            onClick={() => openDeleteConfirmation(task)}
                           >
                             <Trash2 className="w-4 h-4 text-red-500" />
                             Delete
@@ -879,6 +903,34 @@ export const Tasks = (): JSX.Element => {
         task={editingTask}
         onSave={handleEditTask}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-[#1c1c1e] border-gray-200/60 dark:border-[#3a3a3c]">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">Delete Task</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-[#a1a1a6]">
+              Are you sure you want to delete "{taskToDelete?.title}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={closeDeleteConfirmation}
+              className="border-gray-200/60 dark:border-[#3a3a3c] hover:bg-gray-50/60 dark:hover:bg-[#2c2c2e] text-gray-900 dark:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => taskToDelete && handleDeleteTask(taskToDelete.id)}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Task
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
