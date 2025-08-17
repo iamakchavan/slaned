@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 9%;
+    --radius: 2px;
+  }
+
+  .dark {
+    /* Primary dark background: #161618 */
+    --background: 240 2% 9%;
+    --foreground: 0 0% 100%;
+
+    /* Secondary dark background: #1c1c1e */
+    --card: 240 2% 11%;
+    --card-foreground: 0 0% 100%;
+
+    /* Tertiary dark background: #2c2c2e */
+    --popover: 240 2% 17%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 240 2% 9%;
+
+    /* Secondary background: #1c1c1e */
+    --secondary: 240 2% 11%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted surfaces */
+    --muted: 240 2% 11%;
+    --muted-foreground: 0 0% 63%;
+
+    /* Accent surfaces */
+    --accent: 240 2% 17%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Border color: #3a3a3c */
+    --border: 240 2% 23%;
+    --input: 240 2% 17%;
+    --ring: 0 0% 83.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Optimized theme transition state */
+  html.theme-transitioning body {
+    filter: blur(0.5px);
+    opacity: 0.95;
+    transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Optimized smooth transitions for theme changes */
+  html {
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 400ms;
+  }
+
+  /* Optimized transitions for specific elements */
+  .bg-white,
+  .dark\\:bg-\\[\\#2c2c2e\\],
+  .dark\\:bg-\\[\\#1c1c1e\\],
+  .dark\\:bg-\\[\\#161618\\] {
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* Smooth text color transitions */
+  .text-gray-900,
+  .dark\\:text-white,
+  .text-gray-700,
+  .dark\\:text-\\[\\#a1a1a6\\] {
+    transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* Optimized blur fade animation for theme transitions */
+  @keyframes smoothFadeInOut {
+    0% {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+    }
+
+    50% {
+      opacity: 1;
+      backdrop-filter: blur(0.5px);
+    }
+
+    100% {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+    }
+  }
+
+  /* Hardware acceleration for smooth animations */
+  .transition-overlay {
+    will-change: opacity, backdrop-filter;
+    transform: translateZ(0);
+  }
+}
+
+/* Custom dark mode colors */
+@layer utilities {
+  .dark-primary {
+    background-color: #161618;
+  }
+
+  .dark-secondary {
+    background-color: #1c1c1e;
+  }
+
+  .dark-tertiary {
+    background-color: #2c2c2e;
+  }
+
+  .dark-border {
+    border-color: #3a3a3c;
+  }
+
+  .dark-text-primary {
+    color: #ffffff;
+  }
+
+  .dark-text-secondary {
+    color: #a1a1a6;
+  }
+
+  .dark-text-muted {
+    color: #6d6d70;
+  }
+}
+
+/* Smooth Account UI Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Minimal Custom Scrollbar */
+.scrollbar-minimal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.scrollbar-minimal::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-minimal::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.scrollbar-minimal::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-minimal::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+.scrollbar-minimal::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-minimal {
+  scrollbar-color: rgba(161, 161, 166, 0.3) transparent;
+}
+
+.dark .scrollbar-minimal::-webkit-scrollbar-thumb {
+  background: rgba(161, 161, 166, 0.3);
+}
+
+.dark .scrollbar-minimal::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 161, 166, 0.5);
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
