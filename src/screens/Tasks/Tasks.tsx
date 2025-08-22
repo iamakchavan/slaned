@@ -55,18 +55,28 @@ import {
   DialogTitle,
 } from "../../components/ui/dialog";
 
+// Custom SVG Icon Component
+const SvgIcon = ({ src, className }: { src: string; className?: string }) => (
+  <img src={src} alt="" className={className} />
+);
+
+// Icon wrapper functions that accept className prop
+const AllTasksIcon = ({ className }: { className?: string }) => <SvgIcon src="/alltasks.svg" className={className} />;
+const TodoIcon = ({ className }: { className?: string }) => <SvgIcon src="/todo.svg" className={className} />;
+const CompletedIcon = ({ className }: { className?: string }) => <SvgIcon src="/completed.svg" className={className} />;
+
 export const Tasks = (): JSX.Element => {
   const { theme } = useTheme();
   const { user, signOut } = useAuth();
   const { getDisplayName } = useProfile();
-  const { 
-    tasks, 
-    loading: tasksLoading, 
-    createTask, 
-    updateTask, 
-    deleteTask, 
-    duplicateTask, 
-    clearCompletedTasks 
+  const {
+    tasks,
+    loading: tasksLoading,
+    createTask,
+    updateTask,
+    deleteTask,
+    duplicateTask,
+    clearCompletedTasks
   } = useTasks();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -93,7 +103,7 @@ export const Tasks = (): JSX.Element => {
   // For smooth account panel close animation
   const [isAccountPanelVisible, setIsAccountPanelVisible] = useState(false);
   const [isAccountPanelClosing, setIsAccountPanelClosing] = useState(false);
-  
+
   // Delete confirmation dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
@@ -115,9 +125,9 @@ export const Tasks = (): JSX.Element => {
 
   // Computed sidebar data based on current tasks
   const sidebarItems = useMemo(() => [
-    { id: "1", name: "All Tasks", icon: List, selected: activeFilter === "1", count: tasks.length },
-    { id: "2", name: "Active", icon: Square, selected: activeFilter === "2", count: tasks.filter(t => !t.completed).length },
-    { id: "3", name: "Completed", icon: CheckSquare, selected: activeFilter === "3", count: tasks.filter(t => t.completed).length },
+    { id: "1", name: "All Tasks", icon: AllTasksIcon, selected: activeFilter === "1", count: tasks.length },
+    { id: "2", name: "To Do", icon: TodoIcon, selected: activeFilter === "2", count: tasks.filter(t => !t.completed).length },
+    { id: "3", name: "Completed", icon: CompletedIcon, selected: activeFilter === "3", count: tasks.filter(t => t.completed).length },
     { id: "4", name: "High Priority", icon: AlertCircle, selected: activeFilter === "4", count: tasks.filter(t => t.priority === "high").length },
     { id: "5", name: "Due Today", icon: Calendar, selected: activeFilter === "5", count: tasks.filter(t => t.dueDate && isToday(t.dueDate)).length },
     { id: "6", name: "Overdue", icon: Clock, selected: activeFilter === "6", count: tasks.filter(t => t.dueDate && isOverdue(t.dueDate)).length },
@@ -138,7 +148,7 @@ export const Tasks = (): JSX.Element => {
   const toggleTask = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
-    
+
     try {
       await updateTask(taskId, { completed: !task.completed });
     } catch (error) {
@@ -415,14 +425,14 @@ export const Tasks = (): JSX.Element => {
                 </div>
 
                 {/* Task List */}
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {sidebarItems.map((item) => {
                     const IconComponent = item.icon;
                     return (
                       <div
                         key={item.id}
                         onClick={() => setActiveFilter(item.id)}
-                        className={`flex items-center justify-between p-2.5 rounded-sm text-sm transition-all hover:bg-gray-100/40 dark:hover:bg-[#2c2c2e] cursor-pointer ${item.selected ? "bg-gray-100/80 dark:bg-[#2c2c2e]" : ""
+                        className={`flex items-center justify-between p-2 rounded-sm text-sm transition-all hover:bg-gray-100/40 dark:hover:bg-[#2c2c2e] cursor-pointer ${item.selected ? "bg-gray-100/80 dark:bg-[#2c2c2e]" : ""
                           }`}
                       >
                         <div className="flex items-center gap-3">
@@ -551,9 +561,9 @@ export const Tasks = (): JSX.Element => {
                             Settings
                           </Button>
 
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={handleSignOut}
                             className="w-full justify-start text-sm h-9 px-2.5 hover:bg-gray-100/60 dark:hover:bg-red-900/20 rounded-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50/50 dark:hover:bg-red-900/30 flex items-center gap-3">
                             <LogOut className="w-4 h-4 text-red-500 dark:text-red-400" />
@@ -618,160 +628,75 @@ export const Tasks = (): JSX.Element => {
             </div>
           ) : (
             <>
-          <div className="border border-gray-200/60 dark:border-[#3a3a3c] rounded-sm bg-white dark:bg-[#1c1c1e] shadow-sm hover:shadow-sm transition-shadow">
-            {/* Sticky Desktop Table Header */}
-            <div className="hidden md:flex items-center gap-4 p-4 border-b border-gray-200/60 dark:border-[#3a3a3c] bg-gray-50/20 dark:bg-[#2c2c2e]/20 sticky top-0 z-10">
-              <div className="flex-1">
-                <span className="font-normal text-sm text-gray-600 dark:text-[#a1a1a6]">Your tasks</span>
-              </div>
-              <div className="w-24">
-                <span className="font-normal text-sm text-gray-600 dark:text-[#a1a1a6]">Priority</span>
-              </div>
-              <div className="w-24">
-                <span className="font-normal text-sm text-gray-600 dark:text-[#a1a1a6]">Due Date</span>
-              </div>
-              <div className="w-10" />
-            </div>
-
-            {/* Scrollable Task Rows */}
-            <div className="divide-y divide-gray-200/40 dark:divide-[#3a3a3c]/40 max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-minimal">
-              {filteredTasks.map((task) => (
-                <div key={task.id} className="group hover:bg-gray-50/30 dark:hover:bg-[#2c2c2e]/30 transition-colors">
-                  {/* Desktop Layout */}
-                  <div className="hidden md:flex items-center gap-4 p-4">
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={() => toggleTask(task.id)}
-                      className="border-gray-300/80 dark:border-[#6d6d70] data-[state=checked]:bg-gray-900 dark:data-[state=checked]:bg-white data-[state=checked]:border-gray-900 dark:data-[state=checked]:border-white"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className={`text-sm leading-6 cursor-pointer ${task.completed
-                          ? "text-gray-500 dark:text-[#6d6d70] line-through"
-                          : "text-gray-900 dark:text-white"
-                          }`}
-                        onClick={() => task.description && toggleTaskExpansion(task.id)}
-                      >
-                        {task.title}
-                        {task.description && (
-                          <ChevronDownIcon className={`inline ml-2 w-3 h-3 text-gray-400 dark:text-[#6d6d70] transition-transform duration-200 ease-out ${expandedTasks.has(task.id) ? 'rotate-0' : '-rotate-90'
-                            }`} />
-                        )}
-                      </div>
-                      {task.description && expandedTasks.has(task.id) && (
-                        <div className="mt-2 pl-4 border-l-2 border-gray-200/40 dark:border-[#3a3a3c]/40 text-sm text-gray-600 dark:text-[#a1a1a6] leading-relaxed">
-                          {task.description}
-                        </div>
-                      )}
-                    </div>
-                    <div className="w-24">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          cyclePriority(task.id);
-                        }}
-                        className={`text-xs font-normal px-2 py-0.5 rounded-sm border transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${getPriorityColor(task.priority)} ${changingPriorities.has(task.id) ? 'animate-pulse' : ''
-                          }`}
-                      >
-                        <span className={`transition-all duration-200 ease-out transform ${transitioningPriorities.has(task.id)
-                          ? 'blur-sm scale-95 opacity-70'
-                          : 'blur-0 scale-100 opacity-100'
-                          }`}>
-                          {task.priority}
-                        </span>
-                      </button>
-                    </div>
-                    <div className="w-24">
-                      {task.dueDate && (
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className={`text-xs ${formatDueDate(task.dueDate).className} hover:underline cursor-pointer transition-all duration-150 hover:opacity-80 bg-transparent border-none p-0 font-inherit`}>
-                              {formatDueDate(task.dueDate).text}
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto overflow-hidden p-0 bg-white dark:bg-[#2c2c2e] border-gray-200/60 dark:border-[#3a3a3c] shadow-sm" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={task.dueDate}
-                              captionLayout="dropdown"
-                              onSelect={(date) => {
-                                if (date) {
-                                  updateTask(task.id, { dueDate: date });
-                                }
-                              }}
-                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                              className="rounded-md border-0"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      )}
-                    </div>
-                    <div className="w-10">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-8 h-8 hover:bg-gray-100/60 dark:hover:bg-[#2c2c2e] opacity-0 group-hover:opacity-100 transition-all rounded-sm"
-                          >
-                            <MoreHorizontalIcon className="w-4 h-4 text-gray-400 dark:text-[#a1a1a6]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="shadow-sm border-gray-200/60 rounded-sm">
-                          <DropdownMenuItem
-                            className="text-sm flex items-center gap-3"
-                            onClick={() => openEditModal(task)}
-                          >
-                            <Edit className="w-4 h-4 text-gray-500" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-sm flex items-center gap-3"
-                            onClick={() => handleDuplicateTask(task.id)}
-                          >
-                            <Copy className="w-4 h-4 text-gray-500" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-red-600 text-sm flex items-center gap-3"
-                            onClick={() => openDeleteConfirmation(task)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+              <div className="border border-gray-200/60 dark:border-[#3a3a3c] rounded-sm bg-white dark:bg-[#1c1c1e] shadow-sm hover:shadow-sm transition-shadow">
+                {/* Sticky Desktop Table Header */}
+                <div className="hidden md:flex items-center gap-4 p-4 border-b border-gray-200/60 dark:border-[#3a3a3c] bg-gray-50/20 dark:bg-[#2c2c2e]/20 sticky top-0 z-10">
+                  <div className="flex-1">
+                    <span className="font-normal text-sm text-gray-600 dark:text-[#a1a1a6]">Your tasks</span>
                   </div>
+                  <div className="w-24">
+                    <span className="font-normal text-sm text-gray-600 dark:text-[#a1a1a6]">Priority</span>
+                  </div>
+                  <div className="w-24">
+                    <span className="font-normal text-sm text-gray-600 dark:text-[#a1a1a6]">Due Date</span>
+                  </div>
+                  <div className="w-10" />
+                </div>
 
-                  {/* Mobile Layout */}
-                  <div className="md:hidden p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={task.completed}
-                        onCheckedChange={() => toggleTask(task.id)}
-                        className="border-gray-300/80 dark:border-[#6d6d70] data-[state=checked]:bg-gray-900 dark:data-[state=checked]:bg-white data-[state=checked]:border-gray-900 dark:data-[state=checked]:border-white mt-0.5"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className={`text-sm leading-6 cursor-pointer ${task.completed
-                            ? "text-gray-500 dark:text-[#6d6d70] line-through"
-                            : "text-gray-900 dark:text-white"
-                            }`}
-                          onClick={() => task.description && toggleTaskExpansion(task.id)}
-                        >
-                          {task.title}
-                          {task.description && (
-                            <ChevronDownIcon className={`inline ml-2 w-3 h-3 text-gray-400 dark:text-[#6d6d70] transition-transform duration-200 ease-out ${expandedTasks.has(task.id) ? 'rotate-0' : '-rotate-90'
-                              }`} />
+                {/* Scrollable Task Rows */}
+                <div className="divide-y divide-gray-200/40 dark:divide-[#3a3a3c]/40 max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-minimal">
+                  {filteredTasks.map((task) => (
+                    <div key={task.id} className="group hover:bg-gray-50/30 dark:hover:bg-[#2c2c2e]/30 transition-colors">
+                      {/* Desktop Layout */}
+                      <div className="hidden md:flex items-center gap-4 p-4">
+                        <Checkbox
+                          checked={task.completed}
+                          onCheckedChange={() => toggleTask(task.id)}
+                          className="border-gray-300/80 dark:border-[#6d6d70] data-[state=checked]:bg-gray-900 dark:data-[state=checked]:bg-white data-[state=checked]:border-gray-900 dark:data-[state=checked]:border-white"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={`text-sm leading-6 cursor-pointer ${task.completed
+                              ? "text-gray-500 dark:text-[#6d6d70] line-through"
+                              : "text-gray-900 dark:text-white"
+                              }`}
+                            onClick={() => task.description && toggleTaskExpansion(task.id)}
+                          >
+                            {task.title}
+                            {task.description && (
+                              <ChevronDownIcon className={`inline ml-2 w-3 h-3 text-gray-400 dark:text-[#6d6d70] transition-transform duration-200 ease-out ${expandedTasks.has(task.id) ? 'rotate-0' : '-rotate-90'
+                                }`} />
+                            )}
+                          </div>
+                          {task.description && expandedTasks.has(task.id) && (
+                            <div className="mt-2 pl-4 border-l-2 border-gray-200/40 dark:border-[#3a3a3c]/40 text-sm text-gray-600 dark:text-[#a1a1a6] leading-relaxed">
+                              {task.description}
+                            </div>
                           )}
                         </div>
-                        {task.dueDate && (
-                          <div className="mt-1">
+                        <div className="w-24">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              cyclePriority(task.id);
+                            }}
+                            className={`text-xs font-normal px-2 py-0.5 rounded-sm border transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${getPriorityColor(task.priority)} ${changingPriorities.has(task.id) ? 'animate-pulse' : ''
+                              }`}
+                          >
+                            <span className={`transition-all duration-200 ease-out transform ${transitioningPriorities.has(task.id)
+                              ? 'blur-sm scale-95 opacity-70'
+                              : 'blur-0 scale-100 opacity-100'
+                              }`}>
+                              {task.priority}
+                            </span>
+                          </button>
+                        </div>
+                        <div className="w-24">
+                          {task.dueDate && (
                             <Popover>
                               <PopoverTrigger asChild>
-                                <button className={`text-xs ${formatDueDate(task.dueDate).className} hover:underline cursor-pointer transition-all duration-150 hover:opacity-80 text-left bg-transparent border-none p-0 font-inherit`}>
-                                  Due {formatDueDate(task.dueDate).text}
+                                <button className={`text-xs ${formatDueDate(task.dueDate).className} hover:underline cursor-pointer transition-all duration-150 hover:opacity-80 bg-transparent border-none p-0 font-inherit`}>
+                                  {formatDueDate(task.dueDate).text}
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto overflow-hidden p-0 bg-white dark:bg-[#2c2c2e] border-gray-200/60 dark:border-[#3a3a3c] shadow-sm" align="start">
@@ -789,71 +714,156 @@ export const Tasks = (): JSX.Element => {
                                 />
                               </PopoverContent>
                             </Popover>
-                          </div>
-                        )}
-                        {task.description && expandedTasks.has(task.id) && (
-                          <div className="mt-2 pl-4 border-l-2 border-gray-200/40 dark:border-[#3a3a3c]/40 text-sm text-gray-600 dark:text-[#a1a1a6] leading-relaxed">
-                            {task.description}
-                          </div>
-                        )}
+                          )}
+                        </div>
+                        <div className="w-10">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="w-8 h-8 hover:bg-gray-100/60 dark:hover:bg-[#2c2c2e] opacity-0 group-hover:opacity-100 transition-all rounded-sm"
+                              >
+                                <MoreHorizontalIcon className="w-4 h-4 text-gray-400 dark:text-[#a1a1a6]" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="shadow-sm border-gray-200/60 rounded-sm">
+                              <DropdownMenuItem
+                                className="text-sm flex items-center gap-3"
+                                onClick={() => openEditModal(task)}
+                              >
+                                <Edit className="w-4 h-4 text-gray-500" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-sm flex items-center gap-3"
+                                onClick={() => handleDuplicateTask(task.id)}
+                              >
+                                <Copy className="w-4 h-4 text-gray-500" />
+                                Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600 text-sm flex items-center gap-3"
+                                onClick={() => openDeleteConfirmation(task)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-8 h-8 hover:bg-gray-100/60 dark:hover:bg-[#2c2c2e] -mr-2 rounded-sm"
+
+                      {/* Mobile Layout */}
+                      <div className="md:hidden p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={() => toggleTask(task.id)}
+                            className="border-gray-300/80 dark:border-[#6d6d70] data-[state=checked]:bg-gray-900 dark:data-[state=checked]:bg-white data-[state=checked]:border-gray-900 dark:data-[state=checked]:border-white mt-0.5"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className={`text-sm leading-6 cursor-pointer ${task.completed
+                                ? "text-gray-500 dark:text-[#6d6d70] line-through"
+                                : "text-gray-900 dark:text-white"
+                                }`}
+                              onClick={() => task.description && toggleTaskExpansion(task.id)}
+                            >
+                              {task.title}
+                              {task.description && (
+                                <ChevronDownIcon className={`inline ml-2 w-3 h-3 text-gray-400 dark:text-[#6d6d70] transition-transform duration-200 ease-out ${expandedTasks.has(task.id) ? 'rotate-0' : '-rotate-90'
+                                  }`} />
+                              )}
+                            </div>
+                            {task.dueDate && (
+                              <div className="mt-1">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button className={`text-xs ${formatDueDate(task.dueDate).className} hover:underline cursor-pointer transition-all duration-150 hover:opacity-80 text-left bg-transparent border-none p-0 font-inherit`}>
+                                      Due {formatDueDate(task.dueDate).text}
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto overflow-hidden p-0 bg-white dark:bg-[#2c2c2e] border-gray-200/60 dark:border-[#3a3a3c] shadow-sm" align="start">
+                                    <CalendarComponent
+                                      mode="single"
+                                      selected={task.dueDate}
+                                      captionLayout="dropdown"
+                                      onSelect={(date) => {
+                                        if (date) {
+                                          updateTask(task.id, { dueDate: date });
+                                        }
+                                      }}
+                                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                      className="rounded-md border-0"
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            )}
+                            {task.description && expandedTasks.has(task.id) && (
+                              <div className="mt-2 pl-4 border-l-2 border-gray-200/40 dark:border-[#3a3a3c]/40 text-sm text-gray-600 dark:text-[#a1a1a6] leading-relaxed">
+                                {task.description}
+                              </div>
+                            )}
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="w-8 h-8 hover:bg-gray-100/60 dark:hover:bg-[#2c2c2e] -mr-2 rounded-sm"
+                              >
+                                <MoreHorizontalIcon className="w-4 h-4 text-gray-400 dark:text-[#a1a1a6]" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="shadow-sm border-gray-200/60 rounded-sm">
+                              <DropdownMenuItem
+                                className="text-sm flex items-center gap-3"
+                                onClick={() => openEditModal(task)}
+                              >
+                                <Edit className="w-4 h-4 text-gray-500" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-sm flex items-center gap-3"
+                                onClick={() => handleDuplicateTask(task.id)}
+                              >
+                                <Copy className="w-4 h-4 text-gray-500" />
+                                Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600 text-sm flex items-center gap-3"
+                                onClick={() => openDeleteConfirmation(task)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        <div className="flex items-center justify-between pl-7">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              cyclePriority(task.id);
+                            }}
+                            className={`text-xs font-normal px-2 py-0.5 rounded-sm border transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${getPriorityColor(task.priority)} ${changingPriorities.has(task.id) ? 'animate-pulse' : ''
+                              }`}
                           >
-                            <MoreHorizontalIcon className="w-4 h-4 text-gray-400 dark:text-[#a1a1a6]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="shadow-sm border-gray-200/60 rounded-sm">
-                          <DropdownMenuItem
-                            className="text-sm flex items-center gap-3"
-                            onClick={() => openEditModal(task)}
-                          >
-                            <Edit className="w-4 h-4 text-gray-500" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-sm flex items-center gap-3"
-                            onClick={() => handleDuplicateTask(task.id)}
-                          >
-                            <Copy className="w-4 h-4 text-gray-500" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-red-600 text-sm flex items-center gap-3"
-                            onClick={() => openDeleteConfirmation(task)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <span className={`transition-all duration-200 ease-out transform ${transitioningPriorities.has(task.id)
+                              ? 'blur-sm scale-95 opacity-70'
+                              : 'blur-0 scale-100 opacity-100'
+                              }`}>
+                              {task.priority}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between pl-7">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          cyclePriority(task.id);
-                        }}
-                        className={`text-xs font-normal px-2 py-0.5 rounded-sm border transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${getPriorityColor(task.priority)} ${changingPriorities.has(task.id) ? 'animate-pulse' : ''
-                          }`}
-                      >
-                        <span className={`transition-all duration-200 ease-out transform ${transitioningPriorities.has(task.id)
-                          ? 'blur-sm scale-95 opacity-70'
-                          : 'blur-0 scale-100 opacity-100'
-                          }`}>
-                          {task.priority}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
             </>
           )}
         </div>
